@@ -1,0 +1,16 @@
+steps:
+  - name: "gcr.io/cloud-builders/npm"
+    dir: "frontend"
+    args: ["install"]
+  - name: "gcr.io/cloud-builders/npm"
+    dir: "frontend"
+    args: ["run", "build"]
+  - name: "gcr.io/cloud-builders/npm"
+    dir: "backend"
+    args: ["install"]
+  - name: "gcr.io/cloud-builders/gsutil"
+    args: ["cp", "-r", "../frontend/build", "./frontend/build"]
+    dir: "backend"
+  - name: "gcr.io/cloud-builders/npm"
+    dir: "backend"
+    args: ["start"]
