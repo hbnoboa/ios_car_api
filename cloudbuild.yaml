@@ -1,36 +1,17 @@
 steps:
-  # 1. Instala dependências do frontend
-  - name: "gcr.io/cloud-builders/npm"
-    dir: "frontend"
-    args: ["install"]
-
-  # 2. Faz o build do frontend
-  - name: "gcr.io/cloud-builders/npm"
-    dir: "frontend"
-    args: ["run", "build"]
-
-  # 3. Instala dependências do backend
+  # 1. Instala dependências do backend
   - name: "gcr.io/cloud-builders/npm"
     dir: "backend"
     args: ["install"]
 
-  # 4. Copia o build do frontend para dentro do backend
-  - name: "gcr.io/cloud-builders/gsutil"
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - |
-        cp -r ../frontend/build ./frontend/build
-    dir: "backend"
-
-  # 5. Buildpack: faz o deploy do backend (agora com o build do frontend dentro)
-  - name: "gcr.io/buildpacks/builder"
+  # 2. Deploy do backend (que já tem o frontend/build commitado)
+  - name: "gcr.io/k8s-skaffold/pack"
     args:
       - "build"
       - "--builder=gcr.io/buildpacks/builder"
       - "--path=."
-      - "--tag=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"
+      - "europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/ios_car_api/ios-car-api:$COMMIT_SHA"
     dir: "backend"
 
 images:
-  - "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"
+  - "europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/ios_car_api/ios-car-api:$COMMIT_SHA"
