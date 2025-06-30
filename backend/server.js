@@ -37,8 +37,6 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
-
 app.use("/api/images", imageRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/audit-logs", auth, auditLogRoute);
@@ -67,3 +65,5 @@ if (process.env.NODE_ENV === "production") {
 app.use((req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });
 });
+
+server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
