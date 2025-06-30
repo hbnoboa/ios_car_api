@@ -19,6 +19,7 @@ const Vehicles = () => {
 
   // Detecta o tema pelo body (usado pelo Navbar)
   useEffect(() => {
+    console.log("🔄 Detectando tema...");
     const observer = new MutationObserver(() => {
       setDarkTheme(document.body.classList.contains("dark-theme"));
     });
