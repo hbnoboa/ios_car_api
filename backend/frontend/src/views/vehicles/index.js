@@ -5,8 +5,6 @@ import { io } from "socket.io-client";
 import "bootstrap/dist/css/bootstrap.min.css";
 import VehicleSearchForm from "../../components/vehicleSearchForm";
 
-const socket = io();
-
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [total, setTotal] = useState(0);
@@ -64,7 +62,17 @@ const Vehicles = () => {
   // Listen for socket events
   useEffect(() => {
     console.log("Listening for socket events...");
-    const fetchVehicles = () => setRefresh((r) => r + 1);
+
+    const socket = io();
+
+    const fetchVehicles = () => {
+      console.log("Evento socket recebido - atualizando lista");
+      setRefresh((r) => r + 1);
+    };
+
+    socket.on("connect", () => {
+      console.log("Socket conectado:", socket.id);
+    });
 
     socket.on("vehicleCreated", fetchVehicles);
     socket.on("vehicleUpdated", fetchVehicles);
@@ -75,6 +83,7 @@ const Vehicles = () => {
     socket.on("nonconformityDeleted", fetchVehicles);
 
     return () => {
+      console.log("Desconectando socket...");
       socket.off("vehicleCreated", fetchVehicles);
       socket.off("vehicleUpdated", fetchVehicles);
       socket.off("vehicleDeleted", fetchVehicles);
@@ -82,6 +91,8 @@ const Vehicles = () => {
       socket.off("nonconformityCreated", fetchVehicles);
       socket.off("nonconformityUpdated", fetchVehicles);
       socket.off("nonconformityDeleted", fetchVehicles);
+
+      socket.disconnect();
     };
   }, []);
 
@@ -144,7 +155,7 @@ const Vehicles = () => {
 
   return (
     <div>
-      <h2 className={darkTheme ? "text-light" : ""}>Veículos</h2>
+      <h2 className={darkTheme ? "text-light" : ""}>Veículoss</h2>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Button
           as={Link}
