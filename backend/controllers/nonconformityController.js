@@ -34,7 +34,13 @@ module.exports.getNonconformities = async (req, res) => {
 
 // GET a single nonconformity by id for a vehicle
 module.exports.getNonconformity = (req, res) => {
-  Nonconformity.findById(req.params.id)
+  Nonconformity.findOne({
+    _id: req.params.id,
+    $or: [
+      { vehicle: req.params.vehicleId },
+      { vehicle_id: req.params.vehicleId },
+    ],
+  })
     .then((data) => {
       res.status(200).json({
         status: "nonconformity found",
@@ -69,7 +75,11 @@ module.exports.postNonconformity = (req, res) => {
 };
 
 module.exports.putNonconformity = (req, res) => {
-  Nonconformity.findByIdAndUpdate(req.params.id, req.body, { new: true })
+  Nonconformity.findOneAndUpdate(
+    { _id: req.params.id, vehicle: req.params.vehicleId },
+    req.body,
+    { new: true }
+  )
     .then((data) => {
       req.app.get("io")?.emit("nonconformityUpdated", data);
       res.status(200).json({
@@ -89,7 +99,10 @@ module.exports.putNonconformity = (req, res) => {
 
 // DELETE a nonconformity by id for a vehicle
 module.exports.deleteNonconformity = (req, res) => {
-  Nonconformity.findByIdAndDelete(req.params.id)
+  Nonconformity.findOneAndDelete({
+    _id: req.params.id,
+    vehicle: req.params.vehicleId,
+  })
     .then((data) => {
       req.app.get("io")?.emit("nonconformityDeleted", data);
       res.status(200).json({
