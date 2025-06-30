@@ -66,7 +66,7 @@ const Vehicles = () => {
     const socket = io();
 
     const fetchVehicles = () => {
-      console.log("Evento socket recebido - atualizando lista");
+      console.log("🔄 Evento socket recebido - atualizando lista");
       setRefresh((r) => r + 1);
     };
 
@@ -74,9 +74,18 @@ const Vehicles = () => {
       console.log("Socket conectado:", socket.id);
     });
 
-    socket.on("vehicleCreated", fetchVehicles);
-    socket.on("vehicleUpdated", fetchVehicles);
-    socket.on("vehicleDeleted", fetchVehicles);
+    socket.on("vehicleCreated", (data) => {
+      console.log("📨 Recebido vehicleCreated:", data);
+      fetchVehicles();
+    });
+    socket.on("vehicleUpdated", (data) => {
+      console.log("📨 Recebido vehicleUpdated:", data);
+      fetchVehicles();
+    });
+    socket.on("vehicleDeleted", (data) => {
+      console.log("📨 Recebido vehicleDeleted:", data);
+      fetchVehicles();
+    });
 
     socket.on("nonconformityCreated", fetchVehicles);
     socket.on("nonconformityUpdated", fetchVehicles);

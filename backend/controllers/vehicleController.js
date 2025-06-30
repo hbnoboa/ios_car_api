@@ -74,6 +74,7 @@ module.exports.postVehicle = (req, res) => {
   vehicleModel
     .create(req.body)
     .then((data) => {
+      console.log("🚗 EMITINDO vehicleCreated para:", data._id);
       req.app.get("io").emit("vehicleCreated", data);
       res.status(200).json({
         status: "vehicle created",
@@ -92,6 +93,7 @@ module.exports.putVehicle = (req, res) => {
   vehicleModel
     .findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then((data) => {
+      console.log("✏️ EMITINDO vehicleUpdated para:", data._id);
       req.app.get("io").emit("vehicleUpdated", data);
       res.status(200).json({
         status: "vehicle updated",
@@ -110,6 +112,7 @@ module.exports.deleteVehicle = (req, res) => {
   vehicleModel
     .findByIdAndDelete(req.params.id)
     .then((data) => {
+      console.log("🗑️ EMITINDO vehicleDeleted para:", data._id);
       req.app.get("io").emit("vehicleDeleted", data);
       res.status(200).json({
         status: "vehicle deleted",
