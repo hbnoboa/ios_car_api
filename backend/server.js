@@ -71,3 +71,7 @@ app.use((req, res) => {
 });
 
 server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+
+io.on("connection", (socket) => {
+  console.log("Novo cliente conectado:", socket.id);
+});

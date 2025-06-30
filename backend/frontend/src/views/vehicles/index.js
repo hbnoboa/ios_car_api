@@ -63,6 +63,7 @@ const Vehicles = () => {
 
   // Listen for socket events
   useEffect(() => {
+    console.log("Listening for socket events...");
     const fetchVehicles = () => setRefresh((r) => r + 1);
 
     socket.on("vehicleCreated", fetchVehicles);
