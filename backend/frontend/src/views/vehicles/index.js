@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Pagination } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { io } from "socket.io-client";
+import { useSocket } from "../../contexts/SocketContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import VehicleSearchForm from "../../components/vehicleSearchForm";
 
@@ -15,6 +15,7 @@ const Vehicles = () => {
   const [shipsTravels, setShipsTravels] = useState([]);
   const [darkTheme, setDarkTheme] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const socket = useSocket();
 
   // Detecta o tema pelo body (usado pelo Navbar)
   useEffect(() => {
@@ -61,49 +62,40 @@ const Vehicles = () => {
 
   // Listen for socket events
   useEffect(() => {
-    console.log("Listening for socket events...");
+    if (!socket) return;
 
-    const socket = io();
+    console.log("🎧 Listening for socket events...");
 
     const fetchVehicles = () => {
       console.log("🔄 Evento socket recebido - atualizando lista");
       setRefresh((r) => r + 1);
     };
 
-    socket.on("connect", () => {
-      console.log("Socket conectado:", socket.id);
-    });
-
-    socket.on("vehicleCreated", (data) => {
+    const handleVehicleCreated = (data) => {
       console.log("📨 Recebido vehicleCreated:", data);
       fetchVehicles();
-    });
-    socket.on("vehicleUpdated", (data) => {
+    };
+
+    const handleVehicleUpdated = (data) => {
       console.log("📨 Recebido vehicleUpdated:", data);
       fetchVehicles();
-    });
-    socket.on("vehicleDeleted", (data) => {
+    };
+
+    const handleVehicleDeleted = (data) => {
       console.log("📨 Recebido vehicleDeleted:", data);
       fetchVehicles();
-    });
+    };
 
-    socket.on("nonconformityCreated", fetchVehicles);
-    socket.on("nonconformityUpdated", fetchVehicles);
-    socket.on("nonconformityDeleted", fetchVehicles);
+    socket.on("vehicleCreated", handleVehicleCreated);
+    socket.on("vehicleUpdated", handleVehicleUpdated);
+    socket.on("vehicleDeleted", handleVehicleDeleted);
 
     return () => {
-      console.log("Desconectando socket...");
-      socket.off("vehicleCreated", fetchVehicles);
-      socket.off("vehicleUpdated", fetchVehicles);
-      socket.off("vehicleDeleted", fetchVehicles);
-
-      socket.off("nonconformityCreated", fetchVehicles);
-      socket.off("nonconformityUpdated", fetchVehicles);
-      socket.off("nonconformityDeleted", fetchVehicles);
-
-      socket.disconnect();
+      socket.off("vehicleCreated", handleVehicleCreated);
+      socket.off("vehicleUpdated", handleVehicleUpdated);
+      socket.off("vehicleDeleted", handleVehicleDeleted);
     };
-  }, []);
+  }, [socket, setRefresh]);
 
   // Pagination buttons
   const renderPagination = () => {
