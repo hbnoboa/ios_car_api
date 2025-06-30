@@ -1,4 +1,5 @@
-const { Router } = require("express");
+const express = require("express");
+const router = express.Router();
 const {
   getNonconformities,
   getNonconformity,
@@ -7,8 +8,10 @@ const {
   deleteNonconformity,
 } = require("../controllers/nonconformityController");
 
-const router = Router({ mergeParams: true });
+// ERRADO (não faça isso!)
+// router.get("/api/vehicles/:vehicleId/nonconformities", ...);
 
+// CERTO (apenas o sufixo, pois o prefixo já está no app.use)
 router.get("/", getNonconformities);
 router.get("/:id", getNonconformity);
 router.post("/", postNonconformity);

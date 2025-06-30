@@ -47,6 +47,10 @@ app.use(
   "/api/vehicles/:vehicleId/nonconformities",
   auth,
   auditLog,
+  (req, res, next) => {
+    req.vehicleId = req.params.vehicleId;
+    next();
+  },
   nonconformityRoute
 );
 app.use("/api/nonconformitylevels", auth, auditLog, nonconformityLevelRoute);
