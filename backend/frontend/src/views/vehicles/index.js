@@ -7,13 +7,6 @@ import VehicleSearchForm from "../../components/vehicleSearchForm";
 
 const socket = io();
 
-socket.on("connect", () => {
-  console.log("Socket conectado!", socket.id);
-});
-socket.on("connect_error", (err) => {
-  console.error("Erro ao conectar socket:", err);
-});
-
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [total, setTotal] = useState(0);
@@ -23,6 +16,7 @@ const Vehicles = () => {
   const [filters, setFilters] = useState({});
   const [shipsTravels, setShipsTravels] = useState([]);
   const [darkTheme, setDarkTheme] = useState(false);
+  const [refresh, setRefresh] = useState(0);
 
   // Detecta o tema pelo body (usado pelo Navbar)
   useEffect(() => {
@@ -65,11 +59,11 @@ const Vehicles = () => {
     })
       .then((res) => res.json())
       .then((data) => setShipsTravels(Array.isArray(data) ? data : []));
-  }, [page, limit, filters]);
+  }, [page, limit, filters, refresh]);
 
   // Listen for socket events
   useEffect(() => {
-    const fetchVehicles = () => setPage(1); // Refresh to first page on create
+    const fetchVehicles = () => setRefresh((r) => r + 1);
 
     socket.on("vehicleCreated", fetchVehicles);
     socket.on("vehicleUpdated", fetchVehicles);
