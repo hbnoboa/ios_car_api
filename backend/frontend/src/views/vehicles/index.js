@@ -157,7 +157,7 @@ const Vehicles = () => {
 
   return (
     <div>
-      <h2 className={darkTheme ? "text-light" : ""}>Veículoss</h2>
+      <h2 className={darkTheme ? "text-light" : ""}>Veículos</h2>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Button
           as={Link}
