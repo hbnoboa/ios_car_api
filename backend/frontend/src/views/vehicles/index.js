@@ -7,6 +7,13 @@ import VehicleSearchForm from "../../components/vehicleSearchForm";
 
 const socket = io();
 
+socket.on("connect", () => {
+  console.log("Socket conectado!", socket.id);
+});
+socket.on("connect_error", (err) => {
+  console.error("Erro ao conectar socket:", err);
+});
+
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [total, setTotal] = useState(0);
