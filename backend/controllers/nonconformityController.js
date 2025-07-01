@@ -57,18 +57,10 @@ module.exports.getNonconformity = (req, res) => {
     });
 };
 
-const updateVehicleNonconformityCount = async (vehicleId) => {
-  if (!vehicleId) return;
-  const count = await Nonconformity.countDocuments({ vehicle: vehicleId });
-  await Vehicle.findByIdAndUpdate(vehicleId, { nonconformity: count });
-};
-
-// Após criar
 module.exports.postNonconformity = (req, res) => {
   Nonconformity.create({ ...req.body, vehicle: req.params.vehicleId })
-    .then(async (data) => {
+    .then((data) => {
       req.app.get("io")?.emit("nonconformityCreated", data);
-      await updateVehicleNonconformityCount(req.params.vehicleId);
       res.status(200).json({
         status: "nonconformity created",
         data: { nonconformity: data },
@@ -82,16 +74,14 @@ module.exports.postNonconformity = (req, res) => {
     });
 };
 
-// Após editar
 module.exports.putNonconformity = (req, res) => {
   Nonconformity.findOneAndUpdate(
     { _id: req.params.id, vehicle: req.params.vehicleId },
     req.body,
     { new: true }
   )
-    .then(async (data) => {
+    .then((data) => {
       req.app.get("io")?.emit("nonconformityUpdated", data);
-      await updateVehicleNonconformityCount(req.params.vehicleId);
       res.status(200).json({
         status: "nonconformity updated",
         data: {
@@ -107,15 +97,14 @@ module.exports.putNonconformity = (req, res) => {
     });
 };
 
-// Após deletar
+// DELETE a nonconformity by id for a vehicle
 module.exports.deleteNonconformity = (req, res) => {
   Nonconformity.findOneAndDelete({
     _id: req.params.id,
     vehicle: req.params.vehicleId,
   })
-    .then(async (data) => {
+    .then((data) => {
       req.app.get("io")?.emit("nonconformityDeleted", data);
-      await updateVehicleNonconformityCount(req.params.vehicleId);
       res.status(200).json({
         status: "nonconformity deleted",
         data: {
