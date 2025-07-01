@@ -50,6 +50,17 @@ module.exports.getVehicles = async (req, res) => {
   });
 };
 
+module.exports.getNotDoneVehicles = async (req, res) => {
+  try {
+    const vehicles = await vehicleModel
+      .find({ done: "no" })
+      .sort({ updatedAt: -1, updated_at: -1 });
+    res.json({ vehicles });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports.getVehicle = (req, res) => {
   const { id } = req.params;
   vehicleModel
