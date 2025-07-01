@@ -5,7 +5,7 @@ const nonconformitySchema = new mongoose.Schema(
     vehicle: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vehicle",
-      required: false,
+      required: true,
     },
     image1: { type: String },
     image2: { type: String },

@@ -1,12 +1,11 @@
 const Nonconformity = require("../models/nonconformityModel");
-const Vehicle = require("../models/vehicleModel");
 const mongoose = require("mongoose");
 
 module.exports.getNonconformities = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-  const vehicleId = req.params.vehicleId;
+  const vehicleId = req.vehicleId;
 
   try {
     const filter = {
@@ -58,7 +57,8 @@ module.exports.getNonconformity = (req, res) => {
 };
 
 module.exports.postNonconformity = (req, res) => {
-  Nonconformity.create({ ...req.body, vehicle: req.params.vehicleId })
+  console.log("POST nonconformity - body:", req.body);
+  Nonconformity.create({ ...req.body, vehicle: req.vehicleId })
     .then((data) => {
       req.app.get("io")?.emit("nonconformityCreated", data);
       res.status(200).json({
