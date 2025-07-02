@@ -83,7 +83,7 @@ module.exports.postNonconformity = (req, res) => {
 
 module.exports.putNonconformity = (req, res) => {
   Nonconformity.findOneAndUpdate(
-    { _id: req.params.id, vehicle: req.params.vehicleId },
+    { _id: req.params.id, vehicle: req.vehicleId },
     req.body,
     { new: true }
   )
@@ -108,7 +108,7 @@ module.exports.putNonconformity = (req, res) => {
 module.exports.deleteNonconformity = (req, res) => {
   Nonconformity.findOneAndDelete({
     _id: req.params.id,
-    vehicle: req.params.vehicleId,
+    vehicle: req.vehicleId,
   })
     .then((data) => {
       req.app.get("io")?.emit("nonconformityDeleted", data);
