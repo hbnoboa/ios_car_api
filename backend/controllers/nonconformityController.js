@@ -57,10 +57,16 @@ module.exports.getNonconformity = (req, res) => {
 };
 
 module.exports.postNonconformity = (req, res) => {
-  console.log("POST nonconformity - body:", req.body);
   Nonconformity.create({ ...req.body, vehicle: req.vehicleId })
-    .then((data) => {
+    .then(async (data) => {
       req.app.get("io")?.emit("nonconformityCreated", data);
+      const nonconformityCount = await Nonconformity.countDocuments({
+        vehicle: req.vehicleId,
+      });
+      await Vehicle.findByIdAndUpdate(req.vehicleId, {
+        nonconformity: nonconformityCount,
+      });
+      req.app.get("io")?.emit("vehicleUpdated", data);
       res.status(200).json({
         status: "nonconformity created",
         data: { nonconformity: data },
