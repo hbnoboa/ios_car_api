@@ -1,4 +1,5 @@
 const Nonconformity = require("../models/nonconformityModel");
+const Vehicle = require("../models/vehicleModel");
 const mongoose = require("mongoose");
 
 module.exports.getNonconformities = async (req, res) => {
