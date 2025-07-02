@@ -6,7 +6,7 @@ module.exports.getVehicleParts = async (req, res) => {
   const skip = (page - 1) * limit;
 
   const [vehicleParts, total] = await Promise.all([
-    vehiclePartModel.find().sort({ area: 1, name: 1 }).skip(skip).limit(limit),
+    vehiclePartModel.find().sort({ area: 1, name: 1 }).skip(skip),
     vehiclePartModel.countDocuments(),
   ]);
 
