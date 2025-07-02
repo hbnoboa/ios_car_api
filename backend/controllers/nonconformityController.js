@@ -110,8 +110,15 @@ module.exports.deleteNonconformity = (req, res) => {
     _id: req.params.id,
     vehicle: req.vehicleId,
   })
-    .then((data) => {
+    .then(async (data) => {
       req.app.get("io")?.emit("nonconformityDeleted", data);
+      const nonconformityCount = await Nonconformity.countDocuments({
+        vehicle: req.vehicleId,
+      });
+      await Vehicle.findByIdAndUpdate(req.vehicleId, {
+        nonconformity: nonconformityCount,
+      });
+      req.app.get("io")?.emit("vehicleUpdated", data);
       res.status(200).json({
         status: "nonconformity deleted",
         data: {
