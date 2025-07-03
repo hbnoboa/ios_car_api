@@ -29,6 +29,18 @@ const NewNonconformity = () => {
   });
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);
+  const [vehiclePartsOptions, setVehiclePartsOptions] = useState([]);
+  const [nonconformityTypesOptions, setNonconformityTypesOptions] = useState(
+    []
+  );
+  const [nonconformityLevelsOptions, setNonconformityLevelsOptions] = useState(
+    []
+  );
+  const [quadrantsOptions, setQuadrantsOptions] = useState([]);
+  const [measuresOptions, setMeasuresOptions] = useState([]);
+  const [nonconformityLocalsOptions, setNonconformityLocalsOptions] = useState(
+    []
+  );
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -37,6 +49,74 @@ const NewNonconformity = () => {
     observer.observe(document.body, { attributes: true });
     setDarkTheme(document.body.classList.contains("dark-theme"));
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    // Buscar peças do veículo
+    fetch("/api/vehicleparts", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setVehiclePartsOptions(data.vehicleParts || []))
+      .catch(() => setVehiclePartsOptions([]));
+
+    // Buscar tipos de não conformidade
+    fetch("/api/nonconformitytypes", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) =>
+        setNonconformityTypesOptions(data.nonconformityTypes || [])
+      )
+      .catch(() => setNonconformityTypesOptions([]));
+
+    // Buscar níveis de não conformidade
+    fetch("/api/nonconformitylevels", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) =>
+        setNonconformityLevelsOptions(data.nonconformityLevels || [])
+      )
+      .catch(() => setNonconformityLevelsOptions([]));
+
+    // Buscar quadrantes
+    fetch("/api/quadrants", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setQuadrantsOptions(data.quadrants || []))
+      .catch(() => setQuadrantsOptions([]));
+
+    // Buscar medidas
+    fetch("/api/measures", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setMeasuresOptions(data.measures || []))
+      .catch(() => setMeasuresOptions([]));
+
+    // Buscar locais de não conformidade
+    fetch("/api/nonconformitylocals", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) =>
+        setNonconformityLocalsOptions(data.nonconformityLocals || [])
+      )
+      .catch(() => setNonconformityLocalsOptions([]));
   }, []);
 
   const handleChange = (e) => {
@@ -108,59 +188,101 @@ const NewNonconformity = () => {
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Peças do veículo</Form.Label>
-                  <Form.Control
+                  <Form.Select
                     name="vehicleParts"
                     value={form.vehicleParts}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {vehiclePartsOptions.map((part) => (
+                      <option key={part._id} value={part.name}>
+                        {part.name}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Tipos de não conformidade</Form.Label>
-                  <Form.Control
+                  <Form.Label>Tipo de não conformidade</Form.Label>
+                  <Form.Select
                     name="nonconformityTypes"
                     value={form.nonconformityTypes}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {nonconformityTypesOptions.map((type) => (
+                      <option key={type._id} value={type.nctype}>
+                        {type.nctype}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Níveis de não conformidade</Form.Label>
-                  <Form.Control
+                  <Form.Label>Nível de não conformidade</Form.Label>
+                  <Form.Select
                     name="nonconformityLevels"
                     value={form.nonconformityLevels}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {nonconformityLevelsOptions.map((level) => (
+                      <option key={level._id} value={level.level}>
+                        {level.level}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Quadrantes</Form.Label>
-                  <Form.Control
+                  <Form.Label>Quadrante</Form.Label>
+                  <Form.Select
                     name="quadrants"
                     value={form.quadrants}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {quadrantsOptions.map((quad) => (
+                      <option key={quad._id} value={quad.option}>
+                        {quad.option}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Medidas</Form.Label>
-                  <Form.Control
+                  <Form.Label>Medida</Form.Label>
+                  <Form.Select
                     name="measures"
                     value={form.measures}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {measuresOptions.map((measure) => (
+                      <option key={measure._id} value={measure.size}>
+                        {measure.size}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Locais de não conformidade</Form.Label>
-                  <Form.Control
+                  <Form.Label>Local da não conformidade</Form.Label>
+                  <Form.Select
                     name="nonconformityLocals"
                     value={form.nonconformityLocals}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {nonconformityLocalsOptions.map((local) => (
+                      <option key={local._id} value={local.local}>
+                        {local.local}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Imagem 1</Form.Label>
