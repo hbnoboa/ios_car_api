@@ -2,11 +2,6 @@ const mongoose = require("mongoose");
 
 const nonconformitySchema = new mongoose.Schema(
   {
-    vehicle: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Vehicle",
-      required: true,
-    },
     image1: { type: String },
     image2: { type: String },
     image3: { type: String },
@@ -22,4 +17,4 @@ const nonconformitySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Nonconformity", nonconformitySchema);
+module.exports = nonconformitySchema;

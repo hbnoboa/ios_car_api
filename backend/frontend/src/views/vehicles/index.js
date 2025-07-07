@@ -197,9 +197,7 @@ const Vehicles = () => {
               <td>{v.model}</td>
               <td>{v.location}</td>
               <td>{v.situation}</td>
-              <td>
-                {typeof v.nonconformity === "number" ? v.nonconformity : 0}
-              </td>
+              <td>{v.nonconformities?.length || 0}</td>
               <td>
                 {v.updated_at
                   ? new Date(v.updated_at).toLocaleString()

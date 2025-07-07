@@ -23,6 +23,20 @@ const EditNonconformity = () => {
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);
 
+  // --- ADICIONADO: States para as opções dos selects ---
+  const [vehiclePartsOptions, setVehiclePartsOptions] = useState([]);
+  const [nonconformityTypesOptions, setNonconformityTypesOptions] = useState(
+    []
+  );
+  const [nonconformityLevelsOptions, setNonconformityLevelsOptions] = useState(
+    []
+  );
+  const [quadrantsOptions, setQuadrantsOptions] = useState([]);
+  const [measuresOptions, setMeasuresOptions] = useState([]);
+  const [nonconformityLocalsOptions, setNonconformityLocalsOptions] = useState(
+    []
+  );
+
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setDarkTheme(document.body.classList.contains("dark-theme"));
@@ -34,13 +48,43 @@ const EditNonconformity = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch(`/api/vehicles/${id}/nonconformities/${ncid}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const headers = { Authorization: `Bearer ${token}` };
+
+    // Buscar dados da não conformidade para preencher o formulário
+    fetch(`/api/vehicles/${id}/nonconformities/${ncid}`, { headers })
       .then((res) => res.json())
-      .then((data) => setForm(data.data.nonconformity));
+      .then((data) => setForm(data.nonconformity));
+
+    // --- ADICIONADO: Fetches para preencher os selects ---
+    fetch("/api/vehicleparts", { headers })
+      .then((res) => res.json())
+      .then((data) => setVehiclePartsOptions(data.vehicleParts || []));
+
+    fetch("/api/nonconformitytypes", { headers })
+      .then((res) => res.json())
+      .then((data) =>
+        setNonconformityTypesOptions(data.nonconformityTypes || [])
+      );
+
+    fetch("/api/nonconformitylevels", { headers })
+      .then((res) => res.json())
+      .then((data) =>
+        setNonconformityLevelsOptions(data.nonconformityLevels || [])
+      );
+
+    fetch("/api/quadrants", { headers })
+      .then((res) => res.json())
+      .then((data) => setQuadrantsOptions(data.quadrants || []));
+
+    fetch("/api/measures", { headers })
+      .then((res) => res.json())
+      .then((data) => setMeasuresOptions(data.measures || []));
+
+    fetch("/api/nonconformitylocals", { headers })
+      .then((res) => res.json())
+      .then((data) =>
+        setNonconformityLocalsOptions(data.nonconformityLocals || [])
+      );
   }, [id, ncid]);
 
   const handleChange = (e) => {
@@ -91,7 +135,7 @@ const EditNonconformity = () => {
         body: JSON.stringify(updatedForm),
       });
       if (!res.ok) throw new Error("Erro ao editar não conformidade");
-      navigate(`/vehicles/${id}/nonconformities/${ncid}`);
+      navigate(`/vehicles/${id}`);
     } catch (err) {
       setError(err.message);
     }
@@ -112,62 +156,106 @@ const EditNonconformity = () => {
           <Form onSubmit={handleSubmit}>
             <Row>
               <Col md={6}>
+                {/* --- ALTERADO: Todos os Form.Control para Form.Select --- */}
                 <Form.Group className="mb-3">
                   <Form.Label>Peças do veículo</Form.Label>
-                  <Form.Control
+                  <Form.Select
                     name="vehicleParts"
                     value={form.vehicleParts || ""}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {vehiclePartsOptions.map((part) => (
+                      <option key={part._id} value={part.name}>
+                        {part.name}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Tipos de não conformidade</Form.Label>
-                  <Form.Control
+                  <Form.Label>Tipo de não conformidade</Form.Label>
+                  <Form.Select
                     name="nonconformityTypes"
                     value={form.nonconformityTypes || ""}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {nonconformityTypesOptions.map((type) => (
+                      <option key={type._id} value={type.nctype}>
+                        {type.nctype}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Níveis de não conformidade</Form.Label>
-                  <Form.Control
+                  <Form.Label>Nível de não conformidade</Form.Label>
+                  <Form.Select
                     name="nonconformityLevels"
                     value={form.nonconformityLevels || ""}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {nonconformityLevelsOptions.map((level) => (
+                      <option key={level._id} value={level.level}>
+                        {level.level}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Quadrantes</Form.Label>
-                  <Form.Control
+                  <Form.Label>Quadrante</Form.Label>
+                  <Form.Select
                     name="quadrants"
                     value={form.quadrants || ""}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {quadrantsOptions.map((quad) => (
+                      <option key={quad._id} value={quad.option}>
+                        {quad.option}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Medidas</Form.Label>
-                  <Form.Control
+                  <Form.Label>Medida</Form.Label>
+                  <Form.Select
                     name="measures"
                     value={form.measures || ""}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {measuresOptions.map((measure) => (
+                      <option key={measure._id} value={measure.size}>
+                        {measure.size}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Locais de não conformidade</Form.Label>
-                  <Form.Control
+                  <Form.Label>Local da não conformidade</Form.Label>
+                  <Form.Select
                     name="nonconformityLocals"
                     value={form.nonconformityLocals || ""}
                     onChange={handleChange}
                     className={darkTheme ? "bg-dark text-light" : ""}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    {nonconformityLocalsOptions.map((local) => (
+                      <option key={local._id} value={local.local}>
+                        {local.local}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
+                {/* ... Campos de imagem permanecem os mesmos ... */}
                 <Form.Group className="mb-3">
                   <Form.Label>Imagem 1</Form.Label>
                   <Form.Control
@@ -247,7 +335,7 @@ const EditNonconformity = () => {
               </Button>
               <Button
                 as={Link}
-                to={`/vehicles/${id}/nonconformities/${ncid}`}
+                to={`/vehicles/${id}`}
                 variant={darkTheme ? "outline-light" : "secondary"}
               >
                 Cancelar

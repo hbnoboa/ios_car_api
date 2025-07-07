@@ -78,10 +78,7 @@ const ShowVehicle = () => {
             <b>Situação:</b> {vehicle.situation}
           </p>
           <p>
-            <b>Nº de Conformidades:</b>{" "}
-            {typeof vehicle.nonconformity === "number"
-              ? vehicle.nonconformity
-              : 0}
+            <b>Nº de Conformidades:</b> {vehicle.nonconformities?.length || 0}
           </p>
           <p>
             <b>Data:</b>{" "}

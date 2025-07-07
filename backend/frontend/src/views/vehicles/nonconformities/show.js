@@ -24,7 +24,7 @@ const ShowNonconformity = () => {
       },
     })
       .then((res) => res.json())
-      .then((data) => setNc(data.data.nonconformity));
+      .then((data) => setNc(data.nonconformity));
   }, [id, ncid]);
 
   if (!nc) return <div>Carregando...</div>;

@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
+const nonconformitySchema = require("./nonconformityModel"); // Importe o schema
 
 const vehicleSchema = new mongoose.Schema(
   {
     chassis: { type: String, required: true, unique: true },
     location: { type: String },
     type: { type: String },
-    nonconformity: { type: Number, default: 0 },
     brand: { type: String },
     travel: { type: String },
     model: { type: String },
@@ -27,9 +27,7 @@ const vehicleSchema = new mongoose.Schema(
     back_image_filename: { type: String },
     back_image_gridfs_id: { type: String },
 
-    nonconformities: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Nonconformity" },
-    ],
+    nonconformities: { type: [nonconformitySchema], default: [] },
   },
   { timestamps: true }
 );
