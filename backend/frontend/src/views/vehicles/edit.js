@@ -52,12 +52,11 @@ const EditVehicle = () => {
     setImages({ ...images, [field]: e.target.files[0] });
   };
 
-  // Substitui a imagem antiga por uma nova no GridFS
   const editImage = async (file, oldFilename) => {
     if (!file) return oldFilename || "";
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch(`/api/images/edit/${oldFilename || ""}`, {
+    const res = await fetch(`/api/images/edit/${oldFilename || "" || null}`, {
       method: "PUT",
       body: formData,
       headers: {
