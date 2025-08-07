@@ -112,6 +112,7 @@ module.exports.putVehicle = (req, res) => {
       });
     })
     .catch((err) => {
+      console.error("Erro no PUT /vehicles/:id:", err); // <-- Adicione isto
       res.status(400).json({
         status: "vehicle not updated",
         message: err,
