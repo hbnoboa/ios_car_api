@@ -14,8 +14,8 @@ const vehicleSchema = new mongoose.Schema(
     situation: { type: String },
     observations: { type: String },
     done: { type: String, default: "no" },
-    etChassisImageFilename: { type: String },
-    profileImageFilename: { type: String },
+    etChassisImageFilename: { type: String, default: "" },
+    profileImageFilename: { type: String, default: "" },
     nonconformities: { type: [nonconformitySchema], default: [] },
   },
   { timestamps: true }

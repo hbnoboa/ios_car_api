@@ -24,8 +24,8 @@ const NewVehicle = () => {
     done: "no",
   });
   const [images, setImages] = useState({
-    etChassisImage: null,
-    profileImage: null,
+    etChassisImage: "",
+    profileImage: "",
   });
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);

@@ -110,30 +110,6 @@ const ShowVehicle = () => {
               />
             )}
           </div>
-          <div>
-            <b>Imagem Frente:</b>
-            <br />
-            {vehicle.front_image_filename && (
-              <img
-                src={`/api/images/${vehicle.front_image_filename}`}
-                alt="Frente"
-                style={{ maxWidth: 200, marginBottom: 8 }}
-                className={darkTheme ? "bg-dark" : ""}
-              />
-            )}
-          </div>
-          <div>
-            <b>Imagem Traseira:</b>
-            <br />
-            {vehicle.back_image_filename && (
-              <img
-                src={`/api/images/${vehicle.back_image_filename}`}
-                alt="Traseira"
-                style={{ maxWidth: 200, marginBottom: 8 }}
-                className={darkTheme ? "bg-dark" : ""}
-              />
-            )}
-          </div>
           <br />
           <Link
             to={`/vehicles/${id}/edit`}
