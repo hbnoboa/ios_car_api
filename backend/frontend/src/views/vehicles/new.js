@@ -24,8 +24,8 @@ const NewVehicle = () => {
     done: "no",
   });
   const [images, setImages] = useState({
-    et_chassis_image: null,
-    profile_image: null,
+    etChassisImage: null,
+    profileImage: null,
   });
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);
@@ -67,15 +67,13 @@ const NewVehicle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const et_chassis_image_filename = await uploadImage(
-        images.et_chassis_image
-      );
-      const profile_image_filename = await uploadImage(images.profile_image);
+      const etChassisImageFilename = await uploadImage(images.etChassisImage);
+      const profileImageFilename = await uploadImage(images.profileImage);
 
       const vehicleData = {
         ...form,
-        et_chassis_image_filename,
-        profile_image_filename,
+        etChassisImageFilename,
+        profileImageFilename,
       };
 
       const res = await fetch("/api/vehicles", {
@@ -195,7 +193,7 @@ const NewVehicle = () => {
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleImageChange(e, "et_chassis_image")}
+                    onChange={(e) => handleImageChange(e, "etChassisImage")}
                     className={darkTheme ? "bg-dark text-light" : ""}
                   />
                 </Form.Group>
@@ -204,7 +202,7 @@ const NewVehicle = () => {
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleImageChange(e, "profile_image")}
+                    onChange={(e) => handleImageChange(e, "profileImage")}
                     className={darkTheme ? "bg-dark text-light" : ""}
                   />
                 </Form.Group>

@@ -15,8 +15,8 @@ const EditVehicle = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState(null);
   const [images, setImages] = useState({
-    et_chassis_image: null,
-    profile_image: null,
+    etChassisImage: null,
+    profileImage: null,
   });
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);
@@ -68,19 +68,19 @@ const EditVehicle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const et_chassis_image_filename = await editImage(
-        images.et_chassis_image,
-        form.et_chassis_image_filename
+      const etChassisImageFilename = await editImage(
+        images.etChassisImage,
+        form.etChassisImageFilename
       );
-      const profile_image_filename = await editImage(
-        images.profile_image,
-        form.profile_image_filename
+      const profileImageFilename = await editImage(
+        images.profileImage,
+        form.profileImageFilename
       );
 
       const updatedForm = {
         ...form,
-        et_chassis_image_filename,
-        profile_image_filename,
+        etChassisImageFilename,
+        profileImageFilename,
       };
 
       const res = await fetch(`/api/vehicles/${id}`, {
@@ -202,12 +202,12 @@ const EditVehicle = () => {
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleImageChange(e, "et_chassis_image")}
+                    onChange={(e) => handleImageChange(e, "etChassisImage")}
                     className={darkTheme ? "bg-dark text-light" : ""}
                   />
-                  {form.et_chassis_image_filename && (
+                  {form.etChassisImageFilename && (
                     <img
-                      src={`/api/images/${form.et_chassis_image_filename}`}
+                      src={`/api/images/${form.etChassisImageFilename}`}
                       alt="Chassi"
                       style={{ maxWidth: 100, display: "block", marginTop: 8 }}
                       className={darkTheme ? "bg-dark" : ""}
@@ -219,12 +219,12 @@ const EditVehicle = () => {
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleImageChange(e, "profile_image")}
+                    onChange={(e) => handleImageChange(e, "profileImage")}
                     className={darkTheme ? "bg-dark text-light" : ""}
                   />
-                  {form.profile_image_filename && (
+                  {form.profileImageFilename && (
                     <img
-                      src={`/api/images/${form.profile_image_filename}`}
+                      src={`/api/images/${form.profileImageFilename}`}
                       alt="Perfil"
                       style={{ maxWidth: 100, display: "block", marginTop: 8 }}
                       className={darkTheme ? "bg-dark" : ""}
