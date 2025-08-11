@@ -17,8 +17,6 @@ const EditNonconformity = () => {
   const [images, setImages] = useState({
     image1: null,
     image2: null,
-    image3: null,
-    image4: null,
   });
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);
@@ -115,15 +113,11 @@ const EditNonconformity = () => {
     try {
       const image1 = await editImage(images.image1, form.image1);
       const image2 = await editImage(images.image2, form.image2);
-      const image3 = await editImage(images.image3, form.image3);
-      const image4 = await editImage(images.image4, form.image4);
 
       const updatedForm = {
         ...form,
         image1,
         image2,
-        image3,
-        image4,
       };
 
       const res = await fetch(`/api/vehicles/${id}/nonconformities/${ncid}`, {
@@ -285,40 +279,6 @@ const EditNonconformity = () => {
                     <img
                       src={`/api/images/${form.image2}`}
                       alt="Imagem 2"
-                      style={{ maxWidth: 100, display: "block", marginTop: 8 }}
-                      className={darkTheme ? "bg-dark" : ""}
-                    />
-                  )}
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Imagem 3</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "image3")}
-                    className={darkTheme ? "bg-dark text-light" : ""}
-                  />
-                  {form.image3 && (
-                    <img
-                      src={`/api/images/${form.image3}`}
-                      alt="Imagem 3"
-                      style={{ maxWidth: 100, display: "block", marginTop: 8 }}
-                      className={darkTheme ? "bg-dark" : ""}
-                    />
-                  )}
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Imagem 4</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "image4")}
-                    className={darkTheme ? "bg-dark text-light" : ""}
-                  />
-                  {form.image4 && (
-                    <img
-                      src={`/api/images/${form.image4}`}
-                      alt="Imagem 4"
                       style={{ maxWidth: 100, display: "block", marginTop: 8 }}
                       className={darkTheme ? "bg-dark" : ""}
                     />

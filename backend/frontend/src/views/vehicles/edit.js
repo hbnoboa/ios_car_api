@@ -17,8 +17,6 @@ const EditVehicle = () => {
   const [images, setImages] = useState({
     et_chassis_image: null,
     profile_image: null,
-    front_image: null,
-    back_image: null,
   });
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);
@@ -78,21 +76,11 @@ const EditVehicle = () => {
         images.profile_image,
         form.profile_image_filename
       );
-      const front_image_filename = await editImage(
-        images.front_image,
-        form.front_image_filename
-      );
-      const back_image_filename = await editImage(
-        images.back_image,
-        form.back_image_filename
-      );
 
       const updatedForm = {
         ...form,
         et_chassis_image_filename,
         profile_image_filename,
-        front_image_filename,
-        back_image_filename,
       };
 
       const res = await fetch(`/api/vehicles/${id}`, {
@@ -238,40 +226,6 @@ const EditVehicle = () => {
                     <img
                       src={`/api/images/${form.profile_image_filename}`}
                       alt="Perfil"
-                      style={{ maxWidth: 100, display: "block", marginTop: 8 }}
-                      className={darkTheme ? "bg-dark" : ""}
-                    />
-                  )}
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Imagem Frente</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "front_image")}
-                    className={darkTheme ? "bg-dark text-light" : ""}
-                  />
-                  {form.front_image_filename && (
-                    <img
-                      src={`/api/images/${form.front_image_filename}`}
-                      alt="Frente"
-                      style={{ maxWidth: 100, display: "block", marginTop: 8 }}
-                      className={darkTheme ? "bg-dark" : ""}
-                    />
-                  )}
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Imagem Traseira</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "back_image")}
-                    className={darkTheme ? "bg-dark text-light" : ""}
-                  />
-                  {form.back_image_filename && (
-                    <img
-                      src={`/api/images/${form.back_image_filename}`}
-                      alt="Traseira"
                       style={{ maxWidth: 100, display: "block", marginTop: 8 }}
                       className={darkTheme ? "bg-dark" : ""}
                     />

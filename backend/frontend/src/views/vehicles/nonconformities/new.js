@@ -24,8 +24,6 @@ const NewNonconformity = () => {
   const [images, setImages] = useState({
     image1: null,
     image2: null,
-    image3: null,
-    image4: null,
   });
   const [error, setError] = useState("");
   const [darkTheme, setDarkTheme] = useState(false);
@@ -147,15 +145,11 @@ const NewNonconformity = () => {
     try {
       const image1 = await uploadImage(images.image1);
       const image2 = await uploadImage(images.image2);
-      const image3 = await uploadImage(images.image3);
-      const image4 = await uploadImage(images.image4);
 
       const ncData = {
         ...form,
         image1,
         image2,
-        image3,
-        image4,
       };
 
       const res = await fetch(`/api/vehicles/${id}/nonconformities`, {
@@ -299,24 +293,6 @@ const NewNonconformity = () => {
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleImageChange(e, "image2")}
-                    className={darkTheme ? "bg-dark text-light" : ""}
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Imagem 3</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "image3")}
-                    className={darkTheme ? "bg-dark text-light" : ""}
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Imagem 4</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, "image4")}
                     className={darkTheme ? "bg-dark text-light" : ""}
                   />
                 </Form.Group>
