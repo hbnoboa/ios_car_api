@@ -89,9 +89,9 @@ const ShowVehicle = () => {
           <div>
             <b>Imagem Chassi:</b>
             <br />
-            {vehicle.et_chassis_image_filename && (
+            {vehicle.etChassisImageFilename && (
               <img
-                src={`/api/images/${vehicle.et_chassis_image_filename}?t=${vehicle.et_chassis_image_filename}`}
+                src={`/api/images/${vehicle.etChassisImageFilename}?t=${vehicle.etChassisImageFilename}`}
                 alt="Chassi"
                 style={{ maxWidth: 200, marginBottom: 8 }}
                 className={darkTheme ? "bg-dark" : ""}
@@ -101,9 +101,9 @@ const ShowVehicle = () => {
           <div>
             <b>Imagem Perfil:</b>
             <br />
-            {vehicle.profile_image_filename && (
+            {vehicle.profileImageFilename && (
               <img
-                src={`/api/images/${vehicle.profile_image_filename}`}
+                src={`/api/images/${vehicle.profileImageFilename}`}
                 alt="Perfil"
                 style={{ maxWidth: 200, marginBottom: 8 }}
                 className={darkTheme ? "bg-dark" : ""}
