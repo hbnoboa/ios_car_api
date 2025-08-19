@@ -34,14 +34,6 @@ const App = () => {
             </PrivateRoute>
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <div>Bem-vindo ao sistema de veículos!</div>
-            </PrivateRoute>
-          }
-        />
         <Route path="/confirm/:token" element={<ConfirmEmail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
