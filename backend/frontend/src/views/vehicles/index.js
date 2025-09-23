@@ -150,6 +150,41 @@ const Vehicles = () => {
     }
   };
 
+  const handleGeneratePDF = (vehicle) => {
+    const token = localStorage.getItem("token");
+
+    // Criar um link temporário para download
+    const link = document.createElement("a");
+    link.href = `/api/vehicles/${vehicle._id}/pdf`;
+    link.setAttribute("download", `${vehicle.chassis}.pdf`);
+
+    // Adicionar headers de autorização através de fetch
+    fetch(`/api/vehicles/${vehicle._id}/pdf`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.blob();
+        }
+        throw new Error("Erro ao gerar PDF");
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => {
+        console.error("Erro ao baixar PDF:", error);
+        alert("Erro ao gerar PDF");
+      });
+  };
+
   const handleSearch = (formFilters) => {
     setFilters(formFilters); // formFilters já deve ser um objeto {campo: valor}
     setPage(1);
@@ -222,6 +257,13 @@ const Vehicles = () => {
                     variant="warning"
                   >
                     Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="success"
+                    onClick={() => handleGeneratePDF(v)}
+                  >
+                    PDF
                   </Button>
                   <Button
                     size="sm"
