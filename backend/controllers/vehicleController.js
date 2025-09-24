@@ -26,16 +26,22 @@ module.exports.getVehicles = async (req, res) => {
   if (chassis) query.chassis = { $regex: chassis, $options: "i" };
   if (model) query.model = { $regex: model, $options: "i" };
   if (situation) query.situation = { $regex: situation, $options: "i" };
-  if (nonconformity == "0") {
-    query.nonconformity = { $gt: 0 };
+
+  // Ajuste: agora baseado no array nonconformities
+  if (nonconformity === "0") {
+    query["nonconformities.0"] = { $exists: true }; // pelo menos 1
   }
+
   if (done && ["yes", "no"].includes(done.toLowerCase())) {
     query.done = done.toLowerCase();
   }
   if (start_date || end_date) {
-    query.updated_at = {};
-    if (start_date) query.updated_at.$gte = new Date(start_date);
-    if (end_date) query.updated_at.$lte = new Date(end_date);
+    const range = {};
+    if (start_date) range.$gte = new Date(start_date);
+    if (end_date) range.$lte = new Date(end_date);
+    if (Object.keys(range).length) {
+      query.$or = [{ updatedAt: range }, { updated_at: range }];
+    }
   }
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -183,40 +189,37 @@ module.exports.vehiclesPDF = async (req, res) => {
 
     const query = {};
 
-    // ship_and_travel no formato "SHIP-TRAVEL"
     if (ship_and_travel) {
       const [ship, travel] = String(ship_and_travel).split("-");
       if (ship) query.ship = new RegExp(`^${ship.trim()}`, "i");
       if (travel) query.travel = new RegExp(`^${travel.trim()}`, "i");
     }
-
     if (chassis) query.chassis = { $regex: chassis, $options: "i" };
     if (model) query.model = { $regex: model, $options: "i" };
     if (situation) query.situation = { $regex: situation, $options: "i" };
-    if (nonconformity == "0") {
-      query.nonconformity = { $gt: 0 };
+
+    // Ajuste para array
+    if (nonconformity === "0") {
+      query["nonconformities.0"] = { $exists: true };
     }
+
     if (done && ["yes", "no"].includes(done.toLowerCase())) {
       query.done = done.toLowerCase();
     }
+
     if (start_date || end_date) {
-      // Mantém compatível com o index (usa updated_at, se existir na base)
-      const from = start_date ? new Date(start_date) : null;
-      const to = end_date ? new Date(end_date) : null;
-      if (from || to) {
-        query.$and = query.$and || [];
-        const range = {};
-        if (from) range.$gte = from;
-        if (to) range.$lte = to;
-        // tenta em updated_at, senão usa updatedAt
-        query.$and.push({ $or: [{ updated_at: range }, { updatedAt: range }] });
+      const range = {};
+      if (start_date) range.$gte = new Date(start_date);
+      if (end_date) range.$lte = new Date(end_date);
+      if (Object.keys(range).length) {
+        query.$or = [{ updatedAt: range }, { updated_at: range }];
       }
     }
 
     const vehicles = await vehicleModel
       .find(query)
       .populate("nonconformities")
-      .sort({ updatedAt: -1, updated_at: -1 });
+      .sort({ updatedAt: 1, updated_at: 1 });
 
     await generateVehiclesPDF(req, res, vehicles);
   } catch (err) {
@@ -224,7 +227,6 @@ module.exports.vehiclesPDF = async (req, res) => {
     if (!res.headersSent && !res.writableEnded) {
       return res.status(400).json({ error: err.message });
     }
-    // se já começou a enviar o PDF, apenas finalize silenciosamente
     try {
       res.end();
     } catch {}

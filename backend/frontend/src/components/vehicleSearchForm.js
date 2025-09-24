@@ -10,69 +10,67 @@ const VehicleSearchForm = ({ onSearch, pdfUrl, shipsTravels, darkTheme }) => {
     nonconformity: "",
     start_date: "",
     end_date: "",
-    done: "", // <--- ADICIONADO
+    done: "",
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [downloading, setDownloading] = useState(false); // ADICIONADO
+  const [downloading, setDownloading] = useState(false);
 
-  const pdfBaseUrl = pdfUrl || "/api/vehicles/pdf"; // DEFAULT
+  const pdfBaseUrl = pdfUrl || "/api/vehicles/pdf";
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, type, checked, value } = e.target;
     if (type === "checkbox") {
       if (name === "nonconformity") {
-        setForm((prev) => ({ ...prev, [name]: checked ? "0" : "" }));
+        setForm((p) => ({ ...p, nonconformity: checked ? "0" : "" }));
         return;
       }
       if (name === "done") {
-        setForm((prev) => ({ ...prev, done: checked ? "yes" : "" }));
+        setForm((p) => ({ ...p, done: checked ? "yes" : "" }));
         return;
       }
     }
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(form);
+    onSearch({ ...form });
   };
 
-  // Monta URL com os filtros atuais
   const buildPdfUrl = () => {
     const params = [];
-    if (form.ship_and_travel) {
-      const [ship, travel] = form.ship_and_travel.split("-");
-      params.push(`ship=${encodeURIComponent((ship || "").trim())}`);
-      params.push(`travel=${encodeURIComponent((travel || "").trim())}`);
-    }
+    if (form.ship_and_travel)
+      params.push(
+        `ship_and_travel=${encodeURIComponent(form.ship_and_travel.trim())}`
+      );
     if (form.chassis)
       params.push(`chassis=${encodeURIComponent(form.chassis)}`);
     if (form.model) params.push(`model=${encodeURIComponent(form.model)}`);
     if (form.situation)
       params.push(`situation=${encodeURIComponent(form.situation)}`);
-    if (form.nonconformity) params.push(`nonconformity=${form.nonconformity}`);
+    if (form.nonconformity)
+      params.push(`nonconformity=${encodeURIComponent(form.nonconformity)}`);
     if (form.start_date)
       params.push(`start_date=${encodeURIComponent(form.start_date)}`);
     if (form.end_date)
       params.push(`end_date=${encodeURIComponent(form.end_date)}`);
-    if (form.done) params.push(`done=${encodeURIComponent(form.done)}`); // <--- ADICIONADO
-    return `${pdfBaseUrl}?${params.join("&")}`;
+    if (form.done) params.push(`done=${encodeURIComponent(form.done)}`);
+    return `${pdfBaseUrl}${params.length ? "?" + params.join("&") : ""}`;
   };
 
-  // Igual ao botão PDF da tabela (fetch -> blob -> download)
   const downloadListPdf = async () => {
     try {
       setDownloading(true);
       const url = buildPdfUrl();
-      const token = localStorage.getItem("token");
       const resp = await fetch(url, {
-        method: "GET",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
       });
-      if (!resp.ok) throw new Error("Falha ao gerar PDF");
+      if (!resp.ok) {
+        console.error("PDF HTTP Status:", resp.status);
+        throw new Error("Falha ao gerar PDF");
+      }
       const blob = await resp.blob();
       const objUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -84,7 +82,7 @@ const VehicleSearchForm = ({ onSearch, pdfUrl, shipsTravels, darkTheme }) => {
       window.URL.revokeObjectURL(objUrl);
     } catch (e) {
       console.error(e);
-      alert("Erro ao baixar PDF da lista.");
+      alert("Erro ao gerar PDF.");
     } finally {
       setDownloading(false);
     }
