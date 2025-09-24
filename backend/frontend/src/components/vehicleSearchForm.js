@@ -10,14 +10,28 @@ const VehicleSearchForm = ({ onSearch, pdfUrl, shipsTravels, darkTheme }) => {
     nonconformity: "",
     start_date: "",
     end_date: "",
+    done: "", // <--- ADICIONADO
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [downloading, setDownloading] = useState(false); // ADICIONADO
+
+  const pdfBaseUrl = pdfUrl || "/api/vehicles/pdf"; // DEFAULT
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (type === "checkbox") {
+      if (name === "nonconformity") {
+        setForm((prev) => ({ ...prev, [name]: checked ? "0" : "" }));
+        return;
+      }
+      if (name === "done") {
+        setForm((prev) => ({ ...prev, done: checked ? "yes" : "" }));
+        return;
+      }
+    }
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (checked ? "0" : "") : value,
+      [name]: value,
     }));
   };
 
@@ -26,13 +40,13 @@ const VehicleSearchForm = ({ onSearch, pdfUrl, shipsTravels, darkTheme }) => {
     onSearch(form);
   };
 
-  // Monta a URL do PDF com os filtros atuais
+  // Monta URL com os filtros atuais
   const buildPdfUrl = () => {
     const params = [];
     if (form.ship_and_travel) {
       const [ship, travel] = form.ship_and_travel.split("-");
-      params.push(`ship=${encodeURIComponent(ship.trim())}`);
-      params.push(`travel=${encodeURIComponent(travel.trim())}`);
+      params.push(`ship=${encodeURIComponent((ship || "").trim())}`);
+      params.push(`travel=${encodeURIComponent((travel || "").trim())}`);
     }
     if (form.chassis)
       params.push(`chassis=${encodeURIComponent(form.chassis)}`);
@@ -44,10 +58,39 @@ const VehicleSearchForm = ({ onSearch, pdfUrl, shipsTravels, darkTheme }) => {
       params.push(`start_date=${encodeURIComponent(form.start_date)}`);
     if (form.end_date)
       params.push(`end_date=${encodeURIComponent(form.end_date)}`);
-    return `${pdfUrl}?${params.join("&")}`;
+    if (form.done) params.push(`done=${encodeURIComponent(form.done)}`); // <--- ADICIONADO
+    return `${pdfBaseUrl}?${params.join("&")}`;
   };
 
-  // Classes utilitárias para campos no tema escuro
+  // Igual ao botão PDF da tabela (fetch -> blob -> download)
+  const downloadListPdf = async () => {
+    try {
+      setDownloading(true);
+      const url = buildPdfUrl();
+      const token = localStorage.getItem("token");
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!resp.ok) throw new Error("Falha ao gerar PDF");
+      const blob = await resp.blob();
+      const objUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objUrl;
+      a.download = "vehicles.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(objUrl);
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao baixar PDF da lista.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // Classes utilitárias
   const inputClass = darkTheme ? "bg-dark text-light border-secondary" : "";
   const selectClass = darkTheme ? "bg-dark text-light border-secondary" : "";
   const btnVariant = darkTheme ? "secondary" : "primary";
@@ -82,24 +125,18 @@ const VehicleSearchForm = ({ onSearch, pdfUrl, shipsTravels, darkTheme }) => {
                 className={inputClass}
               />
             </Col>
-            <Col md={3} className="d-flex align-items-center">
+            <Col md={3} className="d-flex align-items-center gap-3">
               <Button type="submit" variant={btnVariant} className="btn-filter">
                 Filtrar
               </Button>
-              <a
-                href={buildPdfUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ps-4"
+              <Button
+                type="button"
+                variant={`outline-${btnVariant}`}
+                onClick={downloadListPdf}
+                disabled={downloading}
               >
-                <img
-                  src="/pdf.png"
-                  alt="PDF"
-                  width={40}
-                  height={40}
-                  className="img-fluid"
-                />
-              </a>
+                {downloading ? "Gerando..." : "PDF"}
+              </Button>
             </Col>
           </Row>
           <div className="mt-3">
@@ -168,6 +205,16 @@ const VehicleSearchForm = ({ onSearch, pdfUrl, shipsTravels, darkTheme }) => {
                       value={form.end_date}
                       onChange={handleChange}
                       className={inputClass}
+                    />
+                  </Col>
+                  <Col md={4} className="d-flex align-items-end">
+                    <Form.Check
+                      type="checkbox"
+                      label="Vistoriado"
+                      name="done"
+                      checked={form.done === "yes"}
+                      onChange={handleChange}
+                      className={darkTheme ? "text-light" : ""}
                     />
                   </Col>
                 </Row>

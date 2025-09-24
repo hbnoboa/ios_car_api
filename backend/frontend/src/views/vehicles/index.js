@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Pagination } from "react-bootstrap";
+import { Table, Button, Pagination, Modal, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useSocket } from "../../contexts/SocketContext";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -15,6 +15,12 @@ const Vehicles = () => {
   const [shipsTravels, setShipsTravels] = useState([]);
   const [darkTheme, setDarkTheme] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const [importModal, setImportModal] = useState({ show: false, file: null });
+  const [importData, setImportData] = useState({
+    ship: "",
+    travel: "",
+    location: "",
+  });
   const socket = useSocket();
 
   // Detecta o tema pelo body (usado pelo Navbar)
@@ -194,13 +200,32 @@ const Vehicles = () => {
     <div>
       <h2 className={darkTheme ? "text-light" : ""}>Veículos</h2>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <Button
-          as={Link}
-          to="/vehicles/new"
-          variant={darkTheme ? "secondary" : "primary"}
-        >
-          Novo Veículo
-        </Button>
+        <div className="d-flex gap-2">
+          <Button
+            as={Link}
+            to="/vehicles/new"
+            variant={darkTheme ? "secondary" : "primary"}
+          >
+            Novo Veículo
+          </Button>
+          <input
+            type="file"
+            accept=".json,.xlsx,.xls"
+            id="import-file"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setImportModal({ show: true, file });
+            }}
+          />
+          <Button
+            variant={darkTheme ? "outline-light" : "outline-secondary"}
+            onClick={() => document.getElementById("import-file").click()}
+          >
+            Importar JSON/Excel
+          </Button>
+        </div>
       </div>
       <VehicleSearchForm
         onSearch={handleSearch}
@@ -288,6 +313,123 @@ const Vehicles = () => {
           <strong>{total} itens</strong>
         </span>
       </div>
+      <Modal
+        show={importModal.show}
+        onHide={() => {
+          setImportModal({ show: false, file: null });
+          setImportData({ ship: "", travel: "", location: "" });
+          const input = document.getElementById("import-file");
+          if (input) input.value = "";
+        }}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Importar Veículos</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Navio (Ship)</Form.Label>
+              <Form.Control
+                value={importData.ship}
+                onChange={(e) =>
+                  setImportData((d) => ({ ...d, ship: e.target.value }))
+                }
+                placeholder="Ex: Brasilia"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Viagem (Travel)</Form.Label>
+              <Form.Control
+                value={importData.travel}
+                onChange={(e) =>
+                  setImportData((d) => ({ ...d, travel: e.target.value }))
+                }
+                placeholder="Ex: 161A"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Local (Location)</Form.Label>
+              <Form.Control
+                value={importData.location}
+                onChange={(e) =>
+                  setImportData((d) => ({ ...d, location: e.target.value }))
+                }
+                placeholder="Ex: Itajaí"
+              />
+            </Form.Group>
+            <p className="small text-muted mb-0">
+              Esses valores serão aplicados a todas as linhas importadas.
+            </p>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setImportModal({ show: false, file: null });
+              setImportData({ ship: "", travel: "", location: "" });
+              const input = document.getElementById("import-file");
+              if (input) input.value = "";
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={async () => {
+              if (
+                !importData.ship.trim() ||
+                !importData.travel.trim() ||
+                !importData.location.trim()
+              ) {
+                alert("Preencha ship, travel e location.");
+                return;
+              }
+              const file = importModal.file;
+              if (!file) return;
+              const formData = new FormData();
+              formData.append("file", file);
+              formData.append("ship", importData.ship.trim());
+              formData.append("travel", importData.travel.trim());
+              formData.append("location", importData.location.trim());
+              const token = localStorage.getItem("token");
+              try {
+                const res = await fetch("/api/vehicles/import", {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${token}` },
+                  body: formData,
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                  alert("Erro: " + (data.error || "Falha ao importar"));
+                } else {
+                  alert(
+                    `Importação concluída:
+Total no arquivo: ${data.total_linhas_arquivo}
+Válidos: ${data.registros_validos}
+Já existiam: ${data.ja_existiam}
+Criados: ${data.criados}
+Ship: ${data.ship}
+Travel: ${data.travel}
+Location: ${data.location}`
+                  );
+                  setRefresh((r) => r + 1);
+                }
+              } catch (err) {
+                alert("Erro ao importar: " + err.message);
+              } finally {
+                setImportModal({ show: false, file: null });
+                setImportData({ ship: "", travel: "", location: "" });
+                const input = document.getElementById("import-file");
+                if (input) input.value = "";
+              }
+            }}
+          >
+            Importar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
