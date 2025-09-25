@@ -253,12 +253,12 @@ const Vehicles = () => {
         <tbody>
           {(vehicles || []).map((v) => (
             <tr key={v._id}>
-              <td>{v.chassis}</td>
-              <td>{v.model}</td>
-              <td>{v.location}</td>
-              <td>{v.situation}</td>
-              <td>{v.nonconformities?.length || 0}</td>
-              <td>
+              <td className="text-break">{v.chassis}</td>
+              <td className="text-break">{v.model}</td>
+              <td className="text-break">{v.location}</td>
+              <td className="text-break">{v.situation}</td>
+              <td className="text-break">{v.nonconformities?.length || 0}</td>
+              <td className="text-break">
                 {v.updated_at
                   ? new Date(v.updated_at).toLocaleString()
                   : v.updatedAt
@@ -406,13 +406,13 @@ const Vehicles = () => {
                 } else {
                   alert(
                     `Importação concluída:
-Total no arquivo: ${data.total_linhas_arquivo}
-Válidos: ${data.registros_validos}
-Já existiam: ${data.ja_existiam}
-Criados: ${data.criados}
-Ship: ${data.ship}
-Travel: ${data.travel}
-Location: ${data.location}`
+                      Total no arquivo: ${data.total_linhas_arquivo}
+                      Válidos: ${data.registros_validos}
+                      Já existiam: ${data.ja_existiam}
+                      Criados: ${data.criados}
+                      Ship: ${data.ship}
+                      Travel: ${data.travel}
+                      Location: ${data.location}`
                   );
                   setRefresh((r) => r + 1);
                 }
