@@ -20,81 +20,39 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Registration with email confirmation
+// Registration without email confirmation
 exports.signup = async (req, res) => {
   const { email, password, name } = req.body;
   try {
     const hash = await bcrypt.hash(password, 10);
-    const confirmationToken = jwt.sign({ email }, JWT_SECRET);
     const user = await User.create({
       email,
       password: hash,
       name,
-      confirmationToken,
+      confirmed: true,
+      confirmationToken: null,
     });
 
-    // Send confirmation email
-    const confirmUrl = `${APP_URL}/confirm/${confirmationToken}`;
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Confirmação de Email - IOS Car",
-      html: `
-    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border:1px solid #eee; padding: 24px;">
-      <h2 style="color: #2c3e50;">Bem-vindo ao IOS Car!</h2>
-      <p>Olá,</p>
-      <p>Obrigado por se cadastrar. Para ativar sua conta, por favor confirme seu email clicando no botão abaixo:</p>
-      <p style="text-align: center; margin: 32px 0;">
-        <a href="${confirmUrl}" style="background: #007bff; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-          Confirmar Email
-        </a>
-      </p>
-      <p>Ou copie e cole este link no seu navegador:</p>
-      <p style="word-break: break-all;"><a href="${confirmUrl}">${confirmUrl}</a></p>
-      <hr style="margin: 32px 0;">
-      <p style="font-size: 12px; color: #888;">Se você não criou esta conta, pode ignorar este email.</p>
-    </div>
-  `,
-    });
+    // Opcional: retornar token para login imediato
+    // const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, JWT_SECRET);
+    // return res.status(201).json({ message: "Usuário criado com sucesso.", token });
 
-    res.status(201).json({ message: "Usuário criado. Confirme seu email." });
+    res.status(201).json({ message: "Usuário criado com sucesso." });
   } catch (err) {
     res.status(400).json({ error: "Erro ao criar usuário", details: err });
   }
 };
 
-exports.confirm = async (req, res) => {
-  const { token } = req.params;
-  try {
-    const { email } = jwt.verify(token, JWT_SECRET);
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
-    if (user.confirmed) {
-      return res.json({ message: "Email já confirmado. Você já pode entrar." });
-    }
-    if (user.confirmationToken !== token) {
-      return res.status(400).json({ error: "Token inválido" });
-    }
-    user.confirmed = true;
-    user.confirmationToken = null;
-    await user.save();
-    res.json({ message: "Email confirmado. Você já pode entrar." });
-  } catch {
-    res.status(400).json({ error: "Token inválido ou expirado" });
-  }
-};
-
-// Login with JWT (no password expiration)
+// Login with JWT (confirmation no longer required)
 exports.signin = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user || !user.confirmed)
-      return res
-        .status(401)
-        .json({ error: "Usuário não confirmado ou não encontrado" });
+    if (!user) return res.status(401).json({ error: "Usuário não encontrado" });
+
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: "Senha inválida" });
+
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       JWT_SECRET
@@ -103,6 +61,11 @@ exports.signin = async (req, res) => {
   } catch {
     res.status(400).json({ error: "Erro ao autenticar" });
   }
+};
+
+// (Opcional) manter o handler confirm apenas para compatibilidade
+exports.confirm = async (_req, res) => {
+  return res.json({ message: "Confirmação de e-mail desativada." });
 };
 
 // Password reset request
